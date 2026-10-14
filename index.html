@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>搞笑证书工坊</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:#eef1f5;color:#1f2430;
+       font-family:"Microsoft YaHei","PingFang SC",system-ui,-apple-system,sans-serif}
+  .wrap{max-width:1460px;margin:0 auto;padding:22px 20px 70px}
+  header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+  header h1{font-size:24px;margin:0;letter-spacing:1px}
+  header span{font-size:13px;color:#7a8496}
+  .layout{display:grid;grid-template-columns:362px 1fr;gap:20px;align-items:start}
+  .card{background:#fff;border-radius:16px;padding:18px;
+        box-shadow:0 1px 3px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.06)}
+  .sec{font-size:12px;font-weight:700;color:#8a93a3;letter-spacing:1.5px;margin:0 0 9px}
+  .tpls{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .tpl{border:1px solid #e5e8ee;background:#fafbfc;border-radius:11px;padding:10px 4px;
+       font-size:13px;cursor:pointer;text-align:center;line-height:1.4;
+       transition:all .16s;color:#3b4353;user-select:none}
+  .tpl:hover{border-color:#c3ccf7;background:#f6f7ff;transform:translateY(-1px)}
+  .tpl.on{border-color:#4f46e5;background:#eef1ff;color:#3730a3;font-weight:700;
+          box-shadow:0 0 0 3px rgba(79,70,229,.1)}
+  label{display:block;font-size:12px;color:#79839a;margin:14px 0 6px}
+  input,textarea{width:100%;border:1px solid #dfe3ea;border-radius:10px;padding:10px 12px;
+        font-size:14px;font-family:inherit;background:#fff;outline:none;color:#1f2430;
+        transition:border-color .15s,box-shadow .15s}
+  input:focus,textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.13)}
+  textarea{resize:vertical;min-height:104px;line-height:1.65}
+  .themes{display:flex;gap:12px;margin-top:4px}
+  .th{width:36px;height:36px;border-radius:50%;cursor:pointer;border:2px solid #fff;
+      box-shadow:0 0 0 1px #dfe3ea;transition:transform .15s;position:relative}
+  .th:hover{transform:scale(1.08)}
+  .th.on{box-shadow:0 0 0 2.5px #4f46e5}
+  .th i{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+        font-size:10px;font-style:normal;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);
+        opacity:0}
+  .th.on i{opacity:1}
+  .btns{display:flex;gap:10px;margin-top:20px}
+  button{border:0;border-radius:11px;padding:12px 14px;font-size:14px;font-family:inherit;
+         cursor:pointer;font-weight:700;transition:all .15s}
+  .b1{background:#4f46e5;color:#fff;flex:1;box-shadow:0 4px 12px rgba(79,70,229,.3)}
+  .b1:hover{background:#4338ca;box-shadow:0 6px 16px rgba(79,70,229,.38)}
+  .b2{background:#f3f4f7;color:#3b4353}
+  .b2:hover{background:#e8eaef}
+  .stage{background:#fff;border-radius:16px;padding:16px;
+         box-shadow:0 1px 3px rgba(16,24,40,.06),0 10px 28px rgba(16,24,40,.06)}
+  canvas{width:100%;height:auto;display:block;border-radius:10px;
+         box-shadow:0 2px 10px rgba(16,24,40,.1)}
+  .hint{font-size:12px;color:#9aa2b1;margin-top:12px;text-align:center;line-height:1.7}
+  @media (max-width:960px){
+    .layout{grid-template-columns:1fr}
+    .wrap{padding:16px 12px 60px}
+  }
+  @media print{
+    header,.card,.hint{display:none!important}
+    body{background:#fff}
+    .wrap{padding:0;max-width:none}
+    .layout{display:block}
+    .stage{box-shadow:none;padding:0;border-radius:0}
+    canvas{box-shadow:none;border-radius:0}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>🎖️ 搞笑证书工坊</h1>
+    <span>选个模板 → 填名字 → 一键下载，发朋友圈专用</span>
+  </header>
+
+  <div class="layout">
+    <aside class="card">
+      <p class="sec">① 选证书</p>
+      <div class="tpls" id="tpls"></div>
+
+      <label for="name">② 获奖人姓名</label>
+      <input id="name" type="text" value="张三" maxlength="12" placeholder="写谁的名字">
+
+      <label for="org">颁发单位（落款）</label>
+      <input id="org" type="text" maxlength="20" placeholder="随便编一个">
+
+      <label for="date">颁发日期</label>
+      <input id="date" type="date">
+
+      <label for="body">颁奖词（可自己改）</label>
+      <textarea id="body" spellcheck="false"></textarea>
+
+      <label>③ 证书配色</label>
+      <div class="themes" id="themes"></div>
+
+      <div class="btns">
+        <button class="b1" id="dl">⬇️ 下载图片</button>
+        <button class="b2" id="rnd" title="随机换一个">🎲</button>
+        <button class="b2" id="prt" title="打印">🖨️</button>
+      </div>
+    </aside>
+
+    <section class="stage">
+      <canvas id="cv"></canvas>
+      <p class="hint">手机上看也行，改哪边右边都实时变 · 下载的是高清 PNG，可直接发微信/朋友圈</p>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ---------------- 模板数据 ---------------- */
+const TEMPLATES = [
+  { key:'moyu',  icon:'🎣', label:'摸鱼大师',
+    title:'摸鱼大师',
+    body:'该同志于工作时间内专注摸鱼、心无旁骛，能在老板经过的零点五秒内瞬间切换界面，摸鱼技法炉火纯青，堪称业界天花板。特发此证，以资鼓励，望再接再厉。',
+    org:'国际摸鱼研究协会', seal:'摸鱼', sealSub:'认证专用' },
+
+  { key:'yeao',  icon:'🌙', label:'熬夜冠军',
+    title:'熬夜冠军',
+    body:'该同志长期以牺牲睡眠为己任，凌晨三点仍精神矍铄、刷手机不止，黑眼圈已达专业级水准。为表彰其夜以继日的卓越表现，特授予此证。',
+    org:'全国熬夜锦标赛组委会', seal:'熬夜', sealSub:'冠军专用' },
+
+  { key:'ganfan',icon:'🍚', label:'干饭第一名',
+    title:'干饭第一名',
+    body:'该同志饭点从不迟到，闻香即达，光盘行动贯彻到底，餐后甜品另开一局。其干饭之热忱与执行力，值得全体同仁学习。',
+    org:'干饭人联合会', seal:'干饭', sealSub:'专用章' },
+
+  { key:'naicha',icon:'🧋', label:'奶茶贡献奖',
+    title:'奶茶贡献奖',
+    body:'该同志全年为奶茶事业慷慨解囊，累计贡献珍珠若干吨，为门店会员等级提升作出杰出贡献。特发此证，聊表谢意，全糖去冰。',
+    org:'全糖去冰促进会', seal:'奶茶', sealSub:'贡献专用' },
+
+  { key:'cuigeng',icon:'🔔', label:'催更急先锋',
+    title:'催更急先锋',
+    body:'该同志以每日三问"更新了吗"的执着毅力，累计催更逾千次，虽屡遭敷衍仍斗志不减。此等精神实属罕见，特此表彰。',
+    org:'全国追更者联盟', seal:'催更', sealSub:'先锋专用' },
+
+  { key:'zuiti', icon:'🎤', label:'最强嘴替',
+    title:'最强嘴替',
+    body:'该同志擅长在关键时刻挺身而出，把众人憋在心里的话精准输出，逻辑清晰、气势磅礴，堪称当代嘴替天花板。特发此证。',
+    org:'嘴替资格认证中心', seal:'嘴替', sealSub:'认证专用' },
+
+  { key:'chanshi',icon:'🐱', label:'优秀铲屎官',
+    title:'优秀铲屎官',
+    body:'该同志任劳任怨、风雨无阻，为主子奉上罐头与马杀鸡，纵然被抓被咬亦不离不弃。其忠诚与奉献，令全体铲屎同仁动容。',
+    org:'喵星驻地球大使馆', seal:'铲屎', sealSub:'荣誉专用' },
+
+  { key:'zaoqi', icon:'😴', label:'早起失败奖',
+    title:'早起失败奖',
+    body:'该同志累计设定闹钟上百次，成功起床零次，与床铺的难舍难分堪称经典。经评审委员会一致认定，特授予此证，望来年再战。',
+    org:'早起困难户互助会', seal:'早起', sealSub:'失败专用' },
+
+  { key:'shouji',icon:'📱', label:'手机依赖症',
+    title:'手机依赖症',
+    body:'该同志每日与手机相伴超过十四小时，解锁次数冠绝全院，充电线从不离身，睡前必刷最后一分钟。症状典型，特颁发荣誉会员证书。',
+    org:'低头族健康促进会', seal:'手机', sealSub:'会员专用' },
+
+  { key:'chidao',icon:'⏰', label:'全勤迟到奖',
+    title:'全勤迟到奖',
+    body:'该同志风雨无阻、雷打不动地在打卡时间后三分钟抵达，全年全勤、无一次早到，时间控制之精准令人叹服。特发此证，以资纪念。',
+    org:'卡点上班研究院', seal:'迟到', sealSub:'全勤专用' }
+];
+
+/* ---------------- 配色主题 ---------------- */
+const THEMES = {
+  gold:  { label:'烫金红', c1:'#a32126', c2:'#7a1216', text:'#f6dfa8', sub:'#dcb86a',
+           line:'#e0b64a', accent:'#f7e0a3', seal:'#f4d38d', sealText:'#8e1b1f' },
+  paper: { label:'宣纸墨', c1:'#fdf8ec', c2:'#f2e8d2', text:'#2b2620', sub:'#7a6c55',
+           line:'#b08d57', accent:'#a33325', seal:'#c0392b', sealText:'#fdf8ec' },
+  tech:  { label:'深空蓝', c1:'#0e2b4a', c2:'#061424', text:'#d8ecff', sub:'#79b0dc',
+           line:'#2ea8ff', accent:'#66c6ff', seal:'#2ea8ff', sealText:'#061424' },
+  neon:  { label:'霓虹紫', c1:'#2a1250', c2:'#0e0619', text:'#ffe4fb', sub:'#bd7ee0',
+           line:'#c04bff', accent:'#ff6fe8', seal:'#ff6fe8', sealText:'#1a0b2e' }
+};
+
+/* ---------------- 画布 ---------------- */
+const DW = 1200, DH = 849, SCALE = 2;
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+cv.width = DW * SCALE; cv.height = DH * SCALE;
+
+const FONT_KAI = '"KaiTi","STKaiti","SimSun",serif';
+const FONT_HEI = '"Microsoft YaHei","SimHei",sans-serif';
+
+const state = {
+  tpl: 0, theme: 'gold', name: '张三', date: '',
+  title: '', body: '', org: '', seal: '', sealSub: ''
+};
+
+/* ---------- 文字工具 ---------- */
+function spacedWidth(text, sp){
+  const chars = Array.from(text);
+  let w = 0;
+  for (const c of chars) w += ctx.measureText(c).width;
+  return w + sp * (chars.length - 1);
+}
+function drawSpaced(text, x, y, sp){
+  ctx.textAlign = 'left';
+  const chars = Array.from(text);
+  let total = spacedWidth(text, sp);
+  let px = x - total / 2;
+  for (const c of chars){
+    ctx.fillText(c, px, y);
+    px += ctx.measureText(c).width + sp;
+  }
+}
+function wrapText(text, maxWidth){
+  const lines = [];
+  let line = '';
+  for (const ch of Array.from(text)){
+    if (ch === '\n'){ lines.push(line); line = ''; continue; }
+    const test = line + ch;
+    if (ctx.measureText(test).width > maxWidth && line){ lines.push(line); line = ch; }
+    else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+function diamond(x, y, r){
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(Math.PI / 4);
+  ctx.fillRect(-r, -r, r * 2, r * 2);
+  ctx.restore();
+}
+function star(cx, cy, ro, color){
+  const ri = ro * 0.42;
+  ctx.beginPath();
+  for (let i = 0; i < 10; i++){
+    const r = (i % 2) ? ri : ro;
+    const a = -Math.PI / 2 + i * Math.PI / 5;
+    const x = cx + r * Math.cos(a), y = cy + r * Math.sin(a);
+    i ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+  }
+  ctx.closePath();
+  ctx.fillStyle = color;
+  ctx.fill();
+}
+const CN = '〇一二三四五六七八九';
+const cnYear = y => String(y).split('').map(d => CN[+d]).join('');
+function cnNum(n){
+  if (n <= 10) return n === 10 ? '十' : CN[n];
+  if (n < 20) return '十' + CN[n - 10];
+  const a = Math.floor(n / 10), b = n % 10;
+  return CN[a] + '十' + (b ? CN[b] : '');
+}
+function cnDate(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || '');
+  if (!m) return '';
+  return cnYear(+m[1]) + '年' + cnNum(+m[2]) + '月' + cnNum(+m[3]) + '日';
+}
+
+/* ---------- 主绘制 ---------- */
+function render(){
+  const t = THEMES[state.theme];
+  const cx = DW / 2;
+  ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  ctx.clearRect(0, 0, DW, DH);
+
+  /* 底色 */
+  const g = ctx.createLinearGradient(0, 0, DW, DH);
+  g.addColorStop(0, t.c1);
+  g.addColorStop(1, t.c2);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, DW, DH);
+
+  /* 斜纹 */
+  ctx.save();
+  ctx.globalAlpha = 0.05;
+  ctx.strokeStyle = t.text;
+  ctx.lineWidth = 1;
+  for (let i = -DH; i < DW; i += 30){
+    ctx.beginPath();
+    ctx.moveTo(i, 0);
+    ctx.lineTo(i + DH, DH);
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  /* 边框 */
+  ctx.strokeStyle = t.line;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(36, 36, DW - 72, DH - 72);
+  ctx.lineWidth = 1.4;
+  ctx.strokeRect(52, 52, DW - 104, DH - 104);
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(62, 62, DW - 124, DH - 124);
+
+  /* 四角加粗 */
+  const X = 62, Y = 62, X2 = DW - 62, Y2 = DH - 62, L = 54;
+  ctx.strokeStyle = t.accent;
+  ctx.lineWidth = 5;
+  ctx.beginPath(); ctx.moveTo(X, Y + L); ctx.lineTo(X, Y); ctx.lineTo(X + L, Y); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X2 - L, Y); ctx.lineTo(X2, Y); ctx.lineTo(X2, Y + L); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X, Y2 - L); ctx.lineTo(X, Y2); ctx.lineTo(X + L, Y2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(X2 - L, Y2); ctx.lineTo(X2, Y2); ctx.lineTo(X2, Y2 - L); ctx.stroke();
+
+  ctx.textBaseline = 'alphabetic';
+
+  /* 顶部英文 */
+  ctx.fillStyle = t.sub;
+  ctx.font = '600 19px Georgia,"Times New Roman",serif';
+  drawSpaced('CERTIFICATE OF HONOR', cx, 120, 9);
+
+  /* 标题 */
+  let tfs = 62, sp = 14;
+  ctx.font = 'bold ' + tfs + 'px ' + FONT_KAI;
+  while (spacedWidth(state.title, sp) > 870 && tfs > 32){
+    tfs -= 3;
+    sp = Math.max(5, sp - 1);
+    ctx.font = 'bold ' + tfs + 'px ' + FONT_KAI;
+  }
+  ctx.fillStyle = t.text;
+  drawSpaced(state.title, cx, 214, sp);
+
+  /* 标题下装饰线 */
+  ctx.strokeStyle = t.line;
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx - 196, 248); ctx.lineTo(cx - 36, 248);
+  ctx.moveTo(cx + 36, 248);  ctx.lineTo(cx + 196, 248);
+  ctx.stroke();
+  ctx.fillStyle = t.accent;
+  diamond(cx, 248, 5.5);
+
+  /* 兹授予 */
+  ctx.fillStyle = t.sub;
+  ctx.font = '24px ' + FONT_KAI;
+  drawSpaced('兹授予', cx, 302, 9);
+
+  /* 姓名 */
+  const nm = (state.name || '匿名').trim();
+  let nfs = 76;
+  ctx.font = 'bold ' + nfs + 'px ' + FONT_KAI;
+  let nw = ctx.measureText(nm).width;
+  while (nw > 820 && nfs > 30){
+    nfs -= 4;
+    ctx.font = 'bold ' + nfs + 'px ' + FONT_KAI;
+    nw = ctx.measureText(nm).width;
+  }
+  ctx.textAlign = 'center';
+  ctx.fillStyle = t.accent;
+  ctx.fillText(nm, cx, 396);
+
+  /* 姓名下划线 */
+  ctx.strokeStyle = t.line;
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(cx - nw / 2 - 46, 414);
+  ctx.lineTo(cx + nw / 2 + 46, 414);
+  ctx.stroke();
+  ctx.fillStyle = t.line;
+  diamond(cx - nw / 2 - 56, 414, 3.5);
+  diamond(cx + nw / 2 + 56, 414, 3.5);
+
+  /* 正文 */
+  const bodyTxt = (state.body || '').trim() || '恭喜发财，大吉大利。';
+  let bfs = 27, blh = 49, lines;
+  while (true){
+    ctx.font = bfs + 'px ' + FONT_KAI;
+    lines = wrapText(bodyTxt, 880);
+    if (lines.length <= 4 || bfs <= 18) break;
+    bfs -= 2;
+    blh = bfs * 1.82;
+  }
+  ctx.fillStyle = t.text;
+  ctx.textAlign = 'center';
+  lines.forEach((ln, i) => ctx.fillText(ln, cx, 462 + i * blh));
+
+  /* 落款 */
+  ctx.textAlign = 'right';
+  ctx.fillStyle = t.text;
+  ctx.font = '29px ' + FONT_KAI;
+  const org = (state.org || '').trim();
+  if (org) ctx.fillText(org, 880, 668);
+
+  ctx.fillStyle = t.sub;
+  ctx.font = '24px ' + FONT_KAI;
+  const ds = cnDate(state.date);
+  if (ds) ctx.fillText(ds, 880, 710);
+
+  /* 印章 */
+  drawSeal(990, 692, 80, t);
+
+  ctx.textAlign = 'left';
+}
+
+function drawSeal(cx, cy, r, t){
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.rotate(-Math.PI / 13);
+
+  ctx.globalAlpha = 0.92;
+  ctx.strokeStyle = t.seal;
+  ctx.lineWidth = 6;
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke();
+  ctx.lineWidth = 2.4;
+  ctx.beginPath(); ctx.arc(0, 0, r - 12, 0, Math.PI * 2); ctx.stroke();
+
+  star(0, -r * 0.33, r * 0.27, t.seal);
+
+  ctx.fillStyle = t.seal;
+  ctx.textAlign = 'center';
+  ctx.font = 'bold ' + (r * 0.38) + 'px ' + FONT_HEI;
+  ctx.fillText(state.seal || '认证', 0, r * 0.36);
+
+  ctx.font = (r * 0.23) + 'px ' + FONT_HEI;
+  ctx.fillText(state.sealSub || '专用章', 0, r * 0.72);
+
+  ctx.globalAlpha = 1;
+  ctx.restore();
+}
+
+/* ---------------- 界面绑定 ---------------- */
+const tplsEl   = document.getElementById('tpls');
+const themesEl = document.getElementById('themes');
+const nameEl   = document.getElementById('name');
+const orgEl    = document.getElementById('org');
+const dateEl   = document.getElementById('date');
+const bodyEl   = document.getElementById('body');
+
+/* 模板按钮 */
+TEMPLATES.forEach((tp, i) => {
+  const b = document.createElement('div');
+  b.className = 'tpl' + (i === 0 ? ' on' : '');
+  b.innerHTML = tp.icon + '<br>' + tp.label;
+  b.onclick = () => selectTpl(i);
+  tplsEl.appendChild(b);
+});
+
+/* 配色按钮 */
+Object.keys(THEMES).forEach(k => {
+  const t = THEMES[k];
+  const d = document.createElement('div');
+  d.className = 'th' + (k === 'gold' ? ' on' : '');
+  d.title = t.label;
+  d.style.background = 'linear-gradient(135deg,' + t.c1 + ',' + t.c2 + ')';
+  d.innerHTML = '<i>✓</i>';
+  d.onclick = () => {
+    state.theme = k;
+    [...themesEl.children].forEach((el, i) =>
+      el.classList.toggle('on', Object.keys(THEMES)[i] === k));
+    render();
+  };
+  themesEl.appendChild(d);
+});
+
+function selectTpl(i){
+  const tp = TEMPLATES[i];
+  state.tpl = i;
+  state.title = tp.title;
+  state.body = tp.body;
+  state.org = tp.org;
+  state.seal = tp.seal;
+  state.sealSub = tp.sealSub;
+  [...tplsEl.children].forEach((el, n) => el.classList.toggle('on', n === i));
+  bodyEl.value = tp.body;
+  orgEl.value = tp.org;
+  render();
+}
+
+/* 输入同步 */
+nameEl.oninput = () => { state.name = nameEl.value; render(); };
+orgEl.oninput  = () => { state.org = orgEl.value;   render(); };
+bodyEl.oninput = () => { state.body = bodyEl.value; render(); };
+dateEl.onchange = () => { state.date = dateEl.value; render(); };
+
+/* 日期默认今天 */
+(function initDate(){
+  const d = new Date();
+  const iso = d.getFullYear() + '-' +
+    String(d.getMonth() + 1).padStart(2, '0') + '-' +
+    String(d.getDate()).padStart(2, '0');
+  dateEl.value = iso;
+  state.date = iso;
+})();
+
+/* 随机一个 */
+document.getElementById('rnd').onclick = () => {
+  const ti = Math.floor(Math.random() * TEMPLATES.length);
+  const keys = Object.keys(THEMES);
+  const tk = keys[Math.floor(Math.random() * keys.length)];
+  state.theme = tk;
+  [...themesEl.children].forEach((el, i) => el.classList.toggle('on', keys[i] === tk));
+  selectTpl(ti);
+};
+
+/* 下载 PNG */
+document.getElementById('dl').onclick = () => {
+  const a = document.createElement('a');
+  a.download = state.title + '-' + (state.name || '匿名') + '.png';
+  a.href = cv.toDataURL('image/png');
+  a.click();
+};
+
+/* 打印 */
+document.getElementById('prt').onclick = () => window.print();
+
+/* 启动 */
+selectTpl(0);
+nameEl.value = state.name;
+</script>
+</body>
+</html>
